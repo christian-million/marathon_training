@@ -38,7 +38,7 @@ date_lu <- data.frame(weekday = rep(unique(tidy_plan$weekday), times = 18),
 
 tidy_plan <- tidy_plan %>%
   left_join(date_lu, by=c('weekday', 'Week')) %>%
-  mutate(race_pace = grepl('pace', miles),
+  mutate(race_pace = grepl('pace|Marathon', miles),
          miles = case_when(grepl(' mi', miles) ~ as.numeric(gsub(' mi.*',"", miles)),
                            miles %in% c('Cross', 'Rest') ~ 0,
                            miles == "Half Marathon" ~ 13.1,
@@ -49,3 +49,5 @@ tidy_plan %>%
          trgt_pace = case_when(race_pace ~ "08:01",
                               weekday == "Sun" ~ "08:31",
                               TRUE ~ "08:15"))
+
+lubridate::ms("08:01") - lubridate::ms("08:10:01")
