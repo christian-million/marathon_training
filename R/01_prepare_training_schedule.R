@@ -44,10 +44,12 @@ tidy_plan <- tidy_plan %>%
                            miles == "Half Marathon" ~ 13.1,
                            miles == "Marathon" ~ 26.2,
                            TRUE ~ as.numeric(miles)))
-tidy_plan %>%
+tidy_plan <- tidy_plan %>%
   mutate(three_one = ifelse(weekday == "Sun" & Week%%3 == 2, TRUE, FALSE),
-         trgt_pace = case_when(race_pace ~ "08:01",
-                              weekday == "Sun" ~ "08:31",
-                              TRUE ~ "08:15"))
-
-lubridate::ms("08:01") - lubridate::ms("08:10:01")
+         trgt_pace = case_when(miles == 0 ~ "00:00",
+                               race_pace  ~ "08:01",
+                               three_one  ~ calc_pace(miles, sec_to_time(time_to_sec("08:31")*(miles*.75) + time_to_sec("08:01")*(miles*.25))),
+                               weekday == "Sun" ~ "08:31",
+                               TRUE ~ "08:15"),
+         trgt_time = calc_time(miles, trgt_pace),
+         trgt_splits = purrr::map2(miles, trgt_time, calc_splits))
